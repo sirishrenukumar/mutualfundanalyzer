@@ -10,14 +10,14 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
-import com.sirishrenukumar.mfa.entity.managers.MutualFundManager;
+import com.sirishrenukumar.mfa.entity.managers.MutualFundAndStockManager;
 import com.sirishrenukumar.mfa.web.constants.MappingConstants;
 
 @ManagedBean
 public class MutualFundSnapshotSummaryParser {
 	
 	@Inject
-	private MutualFundManager mutualFundManager;
+	private MutualFundAndStockManager mutualFundAndStockManager;
 	
 	public void parse() throws IOException {
 		
@@ -31,7 +31,7 @@ public class MutualFundSnapshotSummaryParser {
 			String ratingString = mf.select(MappingConstants.Selector.MUTUAL_FUND_RATING_COLUMN).attr(MappingConstants.AttributeName.MUTUAL_FUND_RATING).trim();
 			String categoryString = mf.select(MappingConstants.Selector.MUTUAL_FUND_CATEGORY_COLUMN).attr(MappingConstants.AttributeName.MUTUAL_FUND_CATEGORY).trim();
 			float netAssetsInCrores = Float.parseFloat(mf.select(MappingConstants.Selector.MUTUAL_FUND_NET_ASSETS_COLUMN).html().replace(",","").trim());
-			mutualFundManager.storeMutualFund(idString, name, ratingString, categoryString, netAssetsInCrores);
+			mutualFundAndStockManager.storeMutualFund(idString, name, ratingString, categoryString, netAssetsInCrores);
 		}
 	}
 

@@ -11,20 +11,15 @@ import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
 import com.sirishrenukumar.mfa.entity.MutualFund;
-import com.sirishrenukumar.mfa.entity.Stock;
 import com.sirishrenukumar.mfa.entity.StockMetrics;
-import com.sirishrenukumar.mfa.entity.managers.MutualFundManager;
-import com.sirishrenukumar.mfa.entity.managers.StockManager;
+import com.sirishrenukumar.mfa.entity.managers.MutualFundAndStockManager;
 import com.sirishrenukumar.mfa.web.constants.MappingConstants;
 
 @ManagedBean
 public class MutualFundPortfolioParser {
 	
 	@Inject
-	private MutualFundManager mutualFundManager;
-	
-	@Inject
-	private StockManager stockManager;
+	private MutualFundAndStockManager mutualFundAndStockManager;
 	
 	
 	private MutualFundPortfolioParser() {
@@ -33,7 +28,7 @@ public class MutualFundPortfolioParser {
 	
 	public void parse() throws IOException {
 		
-		for(MutualFund mutualFund: mutualFundManager.getMutualFunds()) {
+		for(MutualFund mutualFund: mutualFundAndStockManager.getMutualFunds()) {
 			
 			Document doc = Jsoup.connect(String.format(MappingConstants.MUTUAL_FUND_DETAILS_PAGE_PORTFOLIO_TAB,mutualFund.getCode())).get();
 			Elements topHoldings = doc.select(MappingConstants.Selector.MUTUAL_FUND_DETAILS_PAGE_PORTFOLIO_TAB_TOP_HOLDINGS_TABLE_ROWS);
@@ -48,8 +43,7 @@ public class MutualFundPortfolioParser {
 				String sector = stockRow.select(MappingConstants.Selector.MUTUAL_FUND_DETAILS_PAGE_PORTFOLIO_TAB_TOP_HOLDINGS_TABLE_ROW_SECTOR).get(0).ownText().trim();
 				String assetPercentageString = stockRow.select(MappingConstants.Selector.MUTUAL_FUND_DETAILS_PAGE_PORTFOLIO_TAB_TOP_HOLDINGS_TABLE_ROW_ASSET_PERCENTAGE).get(0).ownText().trim();
 				
-				Stock stock = stockManager.storeStock(name, sector);
-				mutualFundManager.updateMutualFund(mutualFund, stock, new StockMetrics(Float.parseFloat(assetPercentageString)));
+				mutualFundAndStockManager.associateStockWithMutualFund(name, sector, mutualFund, new StockMetrics(Float.parseFloat(assetPercentageString)));
 			}
 		}
 	}

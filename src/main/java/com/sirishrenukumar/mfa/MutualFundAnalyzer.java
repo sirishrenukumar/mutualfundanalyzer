@@ -1,9 +1,6 @@
 package com.sirishrenukumar.mfa;
 
 import java.io.IOException;
-import java.util.Arrays;
-
-import javax.inject.Inject;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
@@ -13,11 +10,10 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 
 import com.sirishrenukumar.mfa.entity.MutualFund;
-import com.sirishrenukumar.mfa.entity.Person;
-import com.sirishrenukumar.mfa.entity.managers.MutualFundManager;
-import com.sirishrenukumar.mfa.entity.managers.PersonDaoImpl;
-import com.sirishrenukumar.mfa.parser.MutualFundSnapshotSummaryParser;
+import com.sirishrenukumar.mfa.entity.Stock;
+import com.sirishrenukumar.mfa.entity.managers.MutualFundAndStockManager;
 import com.sirishrenukumar.mfa.parser.MutualFundPortfolioParser;
+import com.sirishrenukumar.mfa.parser.MutualFundSnapshotSummaryParser;
 
 @Configuration
 @EnableAutoConfiguration
@@ -32,7 +28,7 @@ public class MutualFundAnalyzer {
 		try {
 			MutualFundSnapshotSummaryParser mutualFundSnapshotSummaryParser = ctx.getBean(MutualFundSnapshotSummaryParser.class);
 			MutualFundPortfolioParser mutualFundPortfolioParser = ctx.getBean(MutualFundPortfolioParser.class); 
-			MutualFundManager mutualFundManager = ctx.getBean(MutualFundManager.class);
+			MutualFundAndStockManager mutualFundAndStockManager = ctx.getBean(MutualFundAndStockManager.class);
 			
 			mutualFundSnapshotSummaryParser.parse();
 			mutualFundPortfolioParser.parse();
@@ -42,8 +38,11 @@ public class MutualFundAnalyzer {
 //			personDaoImpl.save(new Person("sirish", "renukumar"));
 //			System.out.println(personDaoImpl.getAll());
 			
-			for(MutualFund mutualFund : mutualFundManager.getMutualFunds()) {
+			for(MutualFund mutualFund : mutualFundAndStockManager.getMutualFunds()) {
 				System.out.println(mutualFund);
+			}
+			for(Stock stock : mutualFundAndStockManager.getStocks()) {
+				System.out.println(stock);
 			}
 			
 

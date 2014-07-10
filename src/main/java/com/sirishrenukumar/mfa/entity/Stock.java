@@ -1,14 +1,36 @@
 package com.sirishrenukumar.mfa.entity;
 
+import java.util.Set;
+
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
+import javax.persistence.OneToMany;
+
 import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
+import com.google.common.collect.Sets;
 
+@Entity
 public class Stock {
 	
+	@Id
+	@GeneratedValue
+	private long stock_id;
+	
 	private String name;
+	
 	private String sector;
 	
+	@OneToMany(mappedBy = "stock")
+	private Set<MutualFundAndStockAssociation> mutualFundAndStockAssociations;
+	
+	Stock() {
+		mutualFundAndStockAssociations = Sets.newHashSet();
+	}
+	
 	public Stock(String name, String sector) {
+		this();
 		Preconditions.checkArgument(!Strings.isNullOrEmpty(name));
 		Preconditions.checkArgument(!Strings.isNullOrEmpty(sector));
 		this.name = name.trim();
@@ -23,10 +45,10 @@ public class Stock {
 		return sector;
 	}
 	
-	public String getKey() {
-		return getName();
+	public void update(MutualFundAndStockAssociation mutualFundAndStockAssociation) {
+		mutualFundAndStockAssociations.add(mutualFundAndStockAssociation);
 	}
-
+	
 	@Override
 	public int hashCode() {
 		final int prime = 31;
@@ -56,4 +78,5 @@ public class Stock {
 	public String toString() {
 		return "Stock [name=" + name + ", sector=" + sector + "]";
 	}
+
 }
