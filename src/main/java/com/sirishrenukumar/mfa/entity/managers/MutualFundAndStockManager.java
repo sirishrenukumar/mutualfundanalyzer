@@ -50,12 +50,29 @@ public class MutualFundAndStockManager {
 		Preconditions.checkArgument(!Strings.isNullOrEmpty(stockName));
 		Preconditions.checkArgument(!Strings.isNullOrEmpty(stockName));
 		
+		/*
+		 * Replace the single quote in the stock name with space since that conflicts with the SQL statement
+		 */
+		stockName = stockName.replace('\'',' ');
+		
 		Stock stock = getStock(stockName);
 		if(stock == null) {
 			stock = storeStock(stockName, stockSector);
 		}
 		
 		associateStockWithMutualFund(mutualFundCode, stock, stockMetrics);
+	}
+	
+	@Transactional
+	public void updateStockNetAssets() {
+		
+		for(Stock stock : getStocks()) {
+			
+			String sql = String.format("SELECT SUM(mf.netAssetsInCrores * mfasa.assetPercentage) from MutualFund mf INNER JOIN MutualFundAndStockAssociation mfasa ON mf.mutualfund_id = mfasa.mutualfund_id WHERE mfasa.stock_id = %s", stock.getStock_id());
+			
+			stock.setNetAssetsInCrores(jdbcTemplate.queryForObject(sql, Float.class));
+			em.persist(stock);
+		}
 	}
 	
 	@Transactional(readOnly = true)
@@ -66,6 +83,16 @@ public class MutualFundAndStockManager {
 	@Transactional(readOnly = true)
 	public List<Stock> getStocks() {
 		return em.createQuery("SELECT s FROM Stock s", Stock.class).getResultList();
+	}
+
+	@Transactional(readOnly = true)
+	public List<Stock> getStocksOrderedByNetAssets() {
+		return em.createQuery("SELECT s FROM Stock s ORDER BY netAssetsInCrores DESC", Stock.class).getResultList();
+	}
+
+	@Transactional(readOnly = true)
+	public List<Stock> getStocksOrderedByName() {
+		return em.createQuery("SELECT s FROM Stock s ORDER BY name", Stock.class).getResultList();
 	}
 	
 	@Transactional
@@ -83,12 +110,6 @@ public class MutualFundAndStockManager {
 	
 	@Transactional(readOnly = true)
 	private Stock getStock(String name) {
-		
-		/*
-		 * Replace the single quote in the stock name with space since that conflicts with the SQL statement
-		 */
-		name = name.replace('\'',' ');
-		
 		List<Stock> stocks = em.createQuery(String.format("SELECT s FROM Stock s WHERE name = '%s'",name), Stock.class).getResultList();
 
 		if(!stocks.isEmpty()) {

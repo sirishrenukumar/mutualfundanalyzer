@@ -11,7 +11,6 @@ import org.springframework.context.annotation.ImportResource;
 
 import com.sirishrenukumar.mfa.core.MutualFundPortfolioParser;
 import com.sirishrenukumar.mfa.core.MutualFundSnapshotSummaryParser;
-import com.sirishrenukumar.mfa.core.StockAssetsCalculator;
 import com.sirishrenukumar.mfa.entity.MutualFund;
 import com.sirishrenukumar.mfa.entity.Stock;
 import com.sirishrenukumar.mfa.entity.managers.MutualFundAndStockManager;
@@ -30,16 +29,14 @@ public class MutualFundAnalyzer {
 			MutualFundSnapshotSummaryParser mutualFundSnapshotSummaryParser = ctx.getBean(MutualFundSnapshotSummaryParser.class);
 			MutualFundPortfolioParser mutualFundPortfolioParser = ctx.getBean(MutualFundPortfolioParser.class); 
 			MutualFundAndStockManager mutualFundAndStockManager = ctx.getBean(MutualFundAndStockManager.class);
-			StockAssetsCalculator stockAssetsCalculator = ctx.getBean(StockAssetsCalculator.class);
 			
-			mutualFundSnapshotSummaryParser.parseMutualFundSummaryDetails();
-			mutualFundPortfolioParser.parseMutualFundDetails();
-			stockAssetsCalculator.calculateStockAssets();
+			mutualFundSnapshotSummaryParser.parseMutualFundDetails();
+			mutualFundPortfolioParser.parseMutualFundAndStockDetails();
 			
-			for(MutualFund mutualFund : mutualFundAndStockManager.getMutualFunds()) {
-				System.out.println(mutualFund);
-			}
-			for(Stock stock : mutualFundAndStockManager.getStocks()) {
+//			for(MutualFund mutualFund : mutualFundAndStockManager.getMutualFunds()) {
+//				System.out.println(mutualFund);
+//			}
+			for(Stock stock : mutualFundAndStockManager.getStocksOrderedByName()) {
 				System.out.println(stock);
 			}
 			

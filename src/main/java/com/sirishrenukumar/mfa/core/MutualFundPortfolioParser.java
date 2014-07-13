@@ -21,24 +21,16 @@ public class MutualFundPortfolioParser {
 	@Inject
 	private MutualFundAndStockManager mutualFundAndStockManager;
 	
-	
 	private MutualFundPortfolioParser() {
-		
 	}
 	
-	public void parseMutualFundDetails() throws IOException {
+	public void parseMutualFundAndStockDetails() throws IOException {
 		
 		for(MutualFund mutualFund: mutualFundAndStockManager.getMutualFunds()) {
 			
 			Document doc = Jsoup.connect(String.format(MappingConstants.MUTUAL_FUND_DETAILS_PAGE_PORTFOLIO_TAB,mutualFund.getCode())).get();
 			Elements topHoldings = doc.select(MappingConstants.Selector.MUTUAL_FUND_DETAILS_PAGE_PORTFOLIO_TAB_TOP_HOLDINGS_TABLE_ROWS);
-
-//			System.out.println("Processing " + mutualFund);
-			
 			for(Element stockRow : topHoldings) {
-				
-//				System.out.println("Processing " + stockRow);
-				
 				String name = getName(stockRow);
 				String sector = stockRow.select(MappingConstants.Selector.MUTUAL_FUND_DETAILS_PAGE_PORTFOLIO_TAB_TOP_HOLDINGS_TABLE_ROW_SECTOR).get(0).ownText().trim();
 				String assetPercentageString = stockRow.select(MappingConstants.Selector.MUTUAL_FUND_DETAILS_PAGE_PORTFOLIO_TAB_TOP_HOLDINGS_TABLE_ROW_ASSET_PERCENTAGE).get(0).ownText().trim();
@@ -46,8 +38,11 @@ public class MutualFundPortfolioParser {
 				mutualFundAndStockManager.associateStockWithMutualFund(name, sector, mutualFund.getCode(), new StockMetrics(Float.parseFloat(assetPercentageString)));
 			}
 		}
+		
+		mutualFundAndStockManager.updateStockNetAssets();
 	}
 
+	
 	private String getName(Element stockRow) {
 		Elements elements = stockRow.select(MappingConstants.Selector.MUTUAL_FUND_DETAILS_PAGE_PORTFOLIO_TAB_TOP_HOLDINGS_TABLE_ROW_NAME_WITH_HYPERLINK);
 		if(elements.isEmpty()) {

@@ -17,6 +17,4 @@ public class StockMetrics {
 	public String toString() {
 		return "StockMetrics [assetPercentage=" + assetPercentage + "]";
 	}
-	
-	
 }
