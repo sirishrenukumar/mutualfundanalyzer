@@ -2,47 +2,50 @@ package com.sirishrenukumar.mfa;
 
 import java.io.IOException;
 
-import org.springframework.boot.SpringApplication;
+import javax.inject.Inject;
+
 import org.springframework.context.ApplicationContext;
-import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.ImportResource;
+import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 import com.sirishrenukumar.mfa.core.MutualFundPortfolioParser;
 import com.sirishrenukumar.mfa.core.MutualFundSnapshotSummaryParser;
-import com.sirishrenukumar.mfa.entity.MutualFund;
 import com.sirishrenukumar.mfa.entity.Stock;
 import com.sirishrenukumar.mfa.entity.managers.MutualFundAndStockManager;
 
 @Configuration
 @ComponentScan
-@ImportResource(value = "classpath:spring/application-config.xml")
 public class MutualFundAnalyzer {
+	
+	@Inject
+	private MutualFundSnapshotSummaryParser mutualFundSnapshotSummaryParser;
 
-	public static void main(String[] args) throws IOException {
-		ApplicationContext ctx = SpringApplication.run(
-				MutualFundAnalyzer.class, args);
+	@Inject
+	private MutualFundPortfolioParser mutualFundPortfolioParser;
+	
+	@Inject
+	private MutualFundAndStockManager mutualFundAndStockManager;
 
-
-		try {
-			MutualFundSnapshotSummaryParser mutualFundSnapshotSummaryParser = ctx.getBean(MutualFundSnapshotSummaryParser.class);
-			MutualFundPortfolioParser mutualFundPortfolioParser = ctx.getBean(MutualFundPortfolioParser.class); 
-			MutualFundAndStockManager mutualFundAndStockManager = ctx.getBean(MutualFundAndStockManager.class);
+	private void run() throws IOException {
 			
 			mutualFundSnapshotSummaryParser.parseMutualFundDetails();
 			mutualFundPortfolioParser.parseMutualFundAndStockDetails();
 			
-//			for(MutualFund mutualFund : mutualFundAndStockManager.getMutualFunds()) {
-//				System.out.println(mutualFund);
-//			}
-			for(Stock stock : mutualFundAndStockManager.getStocksOrderedByName()) {
+			for(Stock stock : mutualFundAndStockManager.getStocksOrderedByNetAssets()) {
 				System.out.println(stock);
 			}
+	}
+
+	public static void main(String[] args) throws IOException {
+		ApplicationContext ctx = new ClassPathXmlApplicationContext("classpath:spring/application-config.xml");
+
+		try {
+			ctx.getBean(MutualFundAnalyzer.class).run();
 			
 		} finally {
 			if (ctx != null) {
-				((AnnotationConfigApplicationContext) ctx).close();
+				((ClassPathXmlApplicationContext) ctx).close();
 			}
 		}
 	}

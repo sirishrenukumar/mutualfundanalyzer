@@ -5,7 +5,10 @@ public class MappingConstants {
 	private MappingConstants() {
 	}
 	
-	public static final String ALL_EQUITY_FUNDS = "http://www.valueresearchonline.com/funds/fundSelector/default.asp?amc=&cat=equityAll&exc=susp%2Cdir%2Cclose%2C3Star%2C2Star%2C1Star%2CnotRated&isTabChng=1&pg=";
+	/*
+	 * URL for fetching all rated funds i.e excludes %2C5Star%2C4Star%2C3Star%2C1Star%2C1Star
+	 */
+	public static final String ALL_EQUITY_FUNDS = "http://www.valueresearchonline.com/funds/fundSelector/default.asp?amc=&cat=equityAll&exc=susp%2Cdir%2Cclose%2CnotRated&isTabChng=1&pg=";
 	public static final String MUTUAL_FUND_DETAILS_PAGE_PORTFOLIO_TAB = "http://www.valueresearchonline.com/funds/portfoliovr.asp?schemecode=%s";
 	
 	public static class Selector {

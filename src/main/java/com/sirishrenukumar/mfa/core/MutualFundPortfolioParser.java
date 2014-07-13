@@ -28,7 +28,7 @@ public class MutualFundPortfolioParser {
 		
 		for(MutualFund mutualFund: mutualFundAndStockManager.getMutualFunds()) {
 			
-			Document doc = Jsoup.connect(String.format(MappingConstants.MUTUAL_FUND_DETAILS_PAGE_PORTFOLIO_TAB,mutualFund.getCode())).get();
+			Document doc = Jsoup.connect(String.format(MappingConstants.MUTUAL_FUND_DETAILS_PAGE_PORTFOLIO_TAB,mutualFund.getCode())).timeout(0).get();
 			Elements topHoldings = doc.select(MappingConstants.Selector.MUTUAL_FUND_DETAILS_PAGE_PORTFOLIO_TAB_TOP_HOLDINGS_TABLE_ROWS);
 			for(Element stockRow : topHoldings) {
 				String name = getName(stockRow);
