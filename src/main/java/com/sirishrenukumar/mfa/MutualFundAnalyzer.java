@@ -9,6 +9,9 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.eclipse.jetty.server.Server;
+import org.eclipse.jetty.servlet.ServletContextHandler;
+import org.eclipse.jetty.servlet.ServletHolder;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
@@ -26,7 +29,9 @@ public class MutualFundAnalyzer extends HttpServlet{
 	protected void doGet(HttpServletRequest req, HttpServletResponse resp)
 			throws ServletException, IOException {
 		
-		run();
+		for(Stock stock : mutualFundAndStockManager.getStocksOrderedByNetAssets()) {
+			resp.getOutputStream().println(stock.toString());
+		}
 	}
 
 	@Inject
@@ -38,21 +43,27 @@ public class MutualFundAnalyzer extends HttpServlet{
 	@Inject
 	private MutualFundAndStockManager mutualFundAndStockManager;
 
-	private void run() throws IOException {
+	private void parseAndInitialize() throws IOException {
 			
 			mutualFundSnapshotSummaryParser.parseMutualFundDetails();
 			mutualFundPortfolioParser.parseMutualFundAndStockDetails();
 			
-			for(Stock stock : mutualFundAndStockManager.getStocksOrderedByNetAssets()) {
-				System.out.println(stock);
-			}
 	}
 
-	public static void main(String[] args) throws IOException {
+	public static void main(String[] args) throws Exception {
+        
 		ApplicationContext ctx = new ClassPathXmlApplicationContext("classpath:spring/application-config.xml");
-
+		
 		try {
-			ctx.getBean(MutualFundAnalyzer.class).run();
+			ctx.getBean(MutualFundAnalyzer.class).parseAndInitialize();
+
+	        Server server = new Server(5678);
+	        ServletContextHandler context = new ServletContextHandler(ServletContextHandler.SESSIONS);
+	        context.setContextPath("/");
+	        server.setHandler(context);
+	        context.addServlet(new ServletHolder(ctx.getBean(MutualFundAnalyzer.class)),"/*");
+	        server.start();
+	        server.join();
 			
 		} finally {
 			if (ctx != null) {

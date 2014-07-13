@@ -68,7 +68,7 @@ public class MutualFundAndStockManager {
 		
 		for(Stock stock : getStocks()) {
 			
-			String sql = String.format("SELECT SUM(mf.netAssetsInCrores * mfasa.assetPercentage) from MutualFund mf INNER JOIN MutualFundAndStockAssociation mfasa ON mf.mutualfund_id = mfasa.mutualfund_id WHERE mfasa.stock_id = %s", stock.getStock_id());
+			String sql = String.format("SELECT SUM(mf.netAssetsInCrores * mfasa.assetPercentage/100) from MutualFund mf INNER JOIN MutualFundAndStockAssociation mfasa ON mf.mutualfund_id = mfasa.mutualfund_id WHERE mfasa.stock_id = %s", stock.getStock_id());
 			
 			stock.setNetAssetsInCrores(jdbcTemplate.queryForObject(sql, Float.class));
 			em.persist(stock);
