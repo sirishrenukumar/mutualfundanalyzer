@@ -1,4 +1,4 @@
-package com.sirishrenukumar.mfa.util;
+package com.sirishrenukumar.mfa.core;
 
 import java.io.IOException;
 

@@ -25,6 +25,8 @@ public class Stock {
 	@OneToMany(mappedBy = "stock")
 	private Set<MutualFundAndStockAssociation> mutualFundAndStockAssociations;
 	
+	private float netAssetsInCrores;
+
 	Stock() {
 		mutualFundAndStockAssociations = Sets.newHashSet();
 	}
@@ -77,6 +79,14 @@ public class Stock {
 	@Override
 	public String toString() {
 		return "Stock [name=" + name + ", sector=" + sector + "]";
+	}
+
+	public float getNetAssetsInCrores() {
+		return netAssetsInCrores;
+	}
+
+	public void setNetAssetsInCrores(float netAssetsInCrores) {
+		this.netAssetsInCrores = netAssetsInCrores;
 	}
 
 }

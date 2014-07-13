@@ -8,16 +8,19 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.ImportResource;
 
+import com.sirishrenukumar.mfa.core.MutualFundPortfolioParser;
+import com.sirishrenukumar.mfa.core.MutualFundSnapshotSummaryParser;
+import com.sirishrenukumar.mfa.core.StockAssetsCalculator;
 import com.sirishrenukumar.mfa.entity.MutualFund;
 import com.sirishrenukumar.mfa.entity.Stock;
 import com.sirishrenukumar.mfa.entity.managers.MutualFundAndStockManager;
-import com.sirishrenukumar.mfa.util.MutualFundPortfolioParser;
-import com.sirishrenukumar.mfa.util.MutualFundSnapshotSummaryParser;
 
 @Configuration
-@EnableAutoConfiguration
+//@EnableAutoConfiguration
 @ComponentScan
+@ImportResource(value = "classpath:spring/application-config.xml")
 public class MutualFundAnalyzer {
 
 	public static void main(String[] args) throws IOException {
@@ -29,9 +32,11 @@ public class MutualFundAnalyzer {
 			MutualFundSnapshotSummaryParser mutualFundSnapshotSummaryParser = ctx.getBean(MutualFundSnapshotSummaryParser.class);
 			MutualFundPortfolioParser mutualFundPortfolioParser = ctx.getBean(MutualFundPortfolioParser.class); 
 			MutualFundAndStockManager mutualFundAndStockManager = ctx.getBean(MutualFundAndStockManager.class);
+			StockAssetsCalculator stockAssetsCalculator = ctx.getBean(StockAssetsCalculator.class);
 			
-//			mutualFundSnapshotSummaryParser.parse();
-//			mutualFundPortfolioParser.parse();
+			mutualFundSnapshotSummaryParser.parseMutualFundSummaryDetails();
+			mutualFundPortfolioParser.parseMutualFundDetails();
+			stockAssetsCalculator.calculateStockAssets();
 			
 //			PersonDaoImpl personDaoImpl = ctx.getBean(PersonDaoImpl.class);
 //			personDaoImpl.save(new Person("sirish", "renukumar"));

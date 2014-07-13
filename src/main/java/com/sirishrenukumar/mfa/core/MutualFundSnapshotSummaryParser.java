@@ -1,4 +1,4 @@
-package com.sirishrenukumar.mfa.util;
+package com.sirishrenukumar.mfa.core;
 
 import java.io.IOException;
 
@@ -24,7 +24,8 @@ public class MutualFundSnapshotSummaryParser {
 		Document doc = Jsoup.connect(MappingConstants.ALL_EQUITY_FUNDS).get();
 		Elements mfs = doc.select(MappingConstants.Selector.MUTUAL_FUND_ROWS);
 		
-		for(Element mf: mfs) {
+		for(Element mf: mfs)
+		{
 			String idString = mf.select(MappingConstants.Selector.MUTUAL_FUND_CODE).attr(MappingConstants.AttributeName.MUTUAL_FUND_CODE).trim();
 			String name = mf.select(MappingConstants.Selector.MUTUAL_FUND_NAME_COLUMN).html().trim();
 			String ratingString = mf.select(MappingConstants.Selector.MUTUAL_FUND_RATING_COLUMN).attr(MappingConstants.AttributeName.MUTUAL_FUND_RATING).trim();
