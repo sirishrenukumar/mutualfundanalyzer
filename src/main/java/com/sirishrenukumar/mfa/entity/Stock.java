@@ -18,6 +18,10 @@ public class Stock {
 	@GeneratedValue
 	private long stock_id;
 	
+	public long getStock_id() {
+		return stock_id;
+	}
+
 	private String name;
 	
 	private String sector;
@@ -76,17 +80,18 @@ public class Stock {
 		return true;
 	}
 
-	@Override
-	public String toString() {
-		return "Stock [name=" + name + ", sector=" + sector + "]";
-	}
-
 	public float getNetAssetsInCrores() {
 		return netAssetsInCrores;
 	}
 
 	public void setNetAssetsInCrores(float netAssetsInCrores) {
 		this.netAssetsInCrores = netAssetsInCrores;
+	}
+
+	@Override
+	public String toString() {
+		return "Stock [name=" + name + ", sector=" + sector
+				+ ", netAssetsInCrores=" + netAssetsInCrores + "]";
 	}
 
 }

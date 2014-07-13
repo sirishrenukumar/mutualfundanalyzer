@@ -3,7 +3,6 @@ package com.sirishrenukumar.mfa;
 import java.io.IOException;
 
 import org.springframework.boot.SpringApplication;
-import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.context.annotation.ComponentScan;
@@ -18,7 +17,6 @@ import com.sirishrenukumar.mfa.entity.Stock;
 import com.sirishrenukumar.mfa.entity.managers.MutualFundAndStockManager;
 
 @Configuration
-//@EnableAutoConfiguration
 @ComponentScan
 @ImportResource(value = "classpath:spring/application-config.xml")
 public class MutualFundAnalyzer {
@@ -38,11 +36,6 @@ public class MutualFundAnalyzer {
 			mutualFundPortfolioParser.parseMutualFundDetails();
 			stockAssetsCalculator.calculateStockAssets();
 			
-//			PersonDaoImpl personDaoImpl = ctx.getBean(PersonDaoImpl.class);
-//			personDaoImpl.save(new Person("sirish", "renukumar"));
-//			personDaoImpl.save(new Person("sirish", "renukumar"));
-//			System.out.println(personDaoImpl.getAll());
-			
 			for(MutualFund mutualFund : mutualFundAndStockManager.getMutualFunds()) {
 				System.out.println(mutualFund);
 			}
@@ -50,7 +43,6 @@ public class MutualFundAnalyzer {
 				System.out.println(stock);
 			}
 			
-
 		} finally {
 			if (ctx != null) {
 				((AnnotationConfigApplicationContext) ctx).close();
