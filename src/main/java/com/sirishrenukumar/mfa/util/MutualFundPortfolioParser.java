@@ -1,4 +1,4 @@
-package com.sirishrenukumar.mfa.parser;
+package com.sirishrenukumar.mfa.util;
 
 import java.io.IOException;
 
@@ -26,7 +26,7 @@ public class MutualFundPortfolioParser {
 		
 	}
 	
-	public void parse() throws IOException {
+	public void parseMutualFundDetails() throws IOException {
 		
 		for(MutualFund mutualFund: mutualFundAndStockManager.getMutualFunds()) {
 			
@@ -43,7 +43,7 @@ public class MutualFundPortfolioParser {
 				String sector = stockRow.select(MappingConstants.Selector.MUTUAL_FUND_DETAILS_PAGE_PORTFOLIO_TAB_TOP_HOLDINGS_TABLE_ROW_SECTOR).get(0).ownText().trim();
 				String assetPercentageString = stockRow.select(MappingConstants.Selector.MUTUAL_FUND_DETAILS_PAGE_PORTFOLIO_TAB_TOP_HOLDINGS_TABLE_ROW_ASSET_PERCENTAGE).get(0).ownText().trim();
 				
-				mutualFundAndStockManager.associateStockWithMutualFund(name, sector, mutualFund, new StockMetrics(Float.parseFloat(assetPercentageString)));
+				mutualFundAndStockManager.associateStockWithMutualFund(name, sector, mutualFund.getCode(), new StockMetrics(Float.parseFloat(assetPercentageString)));
 			}
 		}
 	}

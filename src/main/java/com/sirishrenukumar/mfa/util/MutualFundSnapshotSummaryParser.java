@@ -1,4 +1,4 @@
-package com.sirishrenukumar.mfa.parser;
+package com.sirishrenukumar.mfa.util;
 
 import java.io.IOException;
 
@@ -19,13 +19,12 @@ public class MutualFundSnapshotSummaryParser {
 	@Inject
 	private MutualFundAndStockManager mutualFundAndStockManager;
 	
-	public void parse() throws IOException {
+	public void parseMutualFundSummaryDetails() throws IOException {
 		
 		Document doc = Jsoup.connect(MappingConstants.ALL_EQUITY_FUNDS).get();
 		Elements mfs = doc.select(MappingConstants.Selector.MUTUAL_FUND_ROWS);
 		
 		for(Element mf: mfs) {
-			
 			String idString = mf.select(MappingConstants.Selector.MUTUAL_FUND_CODE).attr(MappingConstants.AttributeName.MUTUAL_FUND_CODE).trim();
 			String name = mf.select(MappingConstants.Selector.MUTUAL_FUND_NAME_COLUMN).html().trim();
 			String ratingString = mf.select(MappingConstants.Selector.MUTUAL_FUND_RATING_COLUMN).attr(MappingConstants.AttributeName.MUTUAL_FUND_RATING).trim();
@@ -34,5 +33,4 @@ public class MutualFundSnapshotSummaryParser {
 			mutualFundAndStockManager.storeMutualFund(idString, name, ratingString, categoryString, netAssetsInCrores);
 		}
 	}
-
 }

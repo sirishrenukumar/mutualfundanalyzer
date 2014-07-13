@@ -12,8 +12,8 @@ import org.springframework.context.annotation.Configuration;
 import com.sirishrenukumar.mfa.entity.MutualFund;
 import com.sirishrenukumar.mfa.entity.Stock;
 import com.sirishrenukumar.mfa.entity.managers.MutualFundAndStockManager;
-import com.sirishrenukumar.mfa.parser.MutualFundPortfolioParser;
-import com.sirishrenukumar.mfa.parser.MutualFundSnapshotSummaryParser;
+import com.sirishrenukumar.mfa.util.MutualFundPortfolioParser;
+import com.sirishrenukumar.mfa.util.MutualFundSnapshotSummaryParser;
 
 @Configuration
 @EnableAutoConfiguration
@@ -30,8 +30,8 @@ public class MutualFundAnalyzer {
 			MutualFundPortfolioParser mutualFundPortfolioParser = ctx.getBean(MutualFundPortfolioParser.class); 
 			MutualFundAndStockManager mutualFundAndStockManager = ctx.getBean(MutualFundAndStockManager.class);
 			
-			mutualFundSnapshotSummaryParser.parse();
-			mutualFundPortfolioParser.parse();
+//			mutualFundSnapshotSummaryParser.parse();
+//			mutualFundPortfolioParser.parse();
 			
 //			PersonDaoImpl personDaoImpl = ctx.getBean(PersonDaoImpl.class);
 //			personDaoImpl.save(new Person("sirish", "renukumar"));

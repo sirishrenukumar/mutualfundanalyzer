@@ -3,9 +3,11 @@ package com.sirishrenukumar.mfa.entity.managers;
 import java.util.List;
 
 import javax.annotation.ManagedBean;
+import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.google.common.base.Preconditions;
@@ -22,6 +24,9 @@ public class MutualFundAndStockManager {
 	
 	@PersistenceContext
 	private EntityManager em;
+	
+	@Inject
+	private JdbcTemplate jdbcTemplate;
 	
 
 	@Transactional
@@ -41,14 +46,16 @@ public class MutualFundAndStockManager {
 	}
 	
 	@Transactional
-	public void associateStockWithMutualFund(String stockName, String stockSector, MutualFund mutualFund, StockMetrics stockMetrics) {
+	public void associateStockWithMutualFund(String stockName, String stockSector, long mutualFundCode, StockMetrics stockMetrics) {
+		Preconditions.checkArgument(!Strings.isNullOrEmpty(stockName));
+		Preconditions.checkArgument(!Strings.isNullOrEmpty(stockName));
 		
 		Stock stock = getStock(stockName);
 		if(stock == null) {
 			stock = storeStock(stockName, stockSector);
 		}
 		
-		updateMutualFund(mutualFund, stock, stockMetrics);
+		associateStockWithMutualFund(mutualFundCode, stock, stockMetrics);
 	}
 	
 	@Transactional(readOnly = true)
@@ -61,26 +68,25 @@ public class MutualFundAndStockManager {
 		return em.createQuery("SELECT s FROM Stock s", Stock.class).getResultList();
 	}
 	
-	public void update() {
+	@Transactional
+	private void associateStockWithMutualFund(long mutualFundCode, Stock stock, StockMetrics stockMetrics){
+		MutualFund mutualFund = em.createQuery(String.format("SELECT mf from MutualFund mf WHERE code = %s", mutualFundCode), MutualFund.class).getSingleResult();
 		
-		for(Stock stock : getStocks()) {
-			
-		}
-	}
-	
-	private void updateMutualFund(MutualFund mutualFund, Stock stock, StockMetrics stockMetrics){
-		MutualFund mutualFundToUpdate = em.createQuery(String.format("SELECT mf from MutualFund mf WHERE code = %s", mutualFund.getCode()), MutualFund.class).getSingleResult();
-		
-		MutualFundAndStockAssociation mutualFundAndStockAssociation = new MutualFundAndStockAssociation(mutualFundToUpdate, stock, stockMetrics.getAssetPercentage());
-		mutualFundToUpdate.update(mutualFundAndStockAssociation);
+		MutualFundAndStockAssociation mutualFundAndStockAssociation = new MutualFundAndStockAssociation(mutualFund, stock, stockMetrics.getAssetPercentage());
+		mutualFund.update(mutualFundAndStockAssociation);
 		stock.update(mutualFundAndStockAssociation);
 		
-		em.persist(mutualFundToUpdate);
+		em.persist(mutualFund);
 		em.persist(stock);
 		em.persist(mutualFundAndStockAssociation);
 	}
 	
+	@Transactional(readOnly = true)
 	private Stock getStock(String name) {
+		
+		/*
+		 * Replace the single quote in the stock name with space since that conflicts with the SQL statement
+		 */
 		name = name.replace('\'',' ');
 		
 		List<Stock> stocks = em.createQuery(String.format("SELECT s FROM Stock s WHERE name = '%s'",name), Stock.class).getResultList();
@@ -92,6 +98,7 @@ public class MutualFundAndStockManager {
 		return null;
 	}
 	
+	@Transactional
 	private Stock storeStock(String name, String sector) {
 		Stock stock = new Stock(name, sector);
 		em.persist(stock);
