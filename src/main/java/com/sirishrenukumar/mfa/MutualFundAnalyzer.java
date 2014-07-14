@@ -29,6 +29,10 @@ public class MutualFundAnalyzer extends HttpServlet{
 	protected void doGet(HttpServletRequest req, HttpServletResponse resp)
 			throws ServletException, IOException {
 		
+		if(!initialized) {
+			parseAndInitialize();
+		}
+		
 		for(Stock stock : mutualFundAndStockManager.getStocksOrderedByNetAssets()) {
 			resp.getOutputStream().println(stock.toString());
 		}
@@ -42,10 +46,13 @@ public class MutualFundAnalyzer extends HttpServlet{
 	
 	@Inject
 	private MutualFundAndStockManager mutualFundAndStockManager;
+	
+	private boolean initialized;
 
 	private void parseAndInitialize() throws IOException {
 			mutualFundSnapshotSummaryParser.parseMutualFundDetails();
 			mutualFundPortfolioParser.parseMutualFundAndStockDetails();
+			initialized = true;
 	}
 
 	public static void main(String[] args) throws Exception {
@@ -53,8 +60,6 @@ public class MutualFundAnalyzer extends HttpServlet{
 		ApplicationContext ctx = new ClassPathXmlApplicationContext("classpath:spring/application-config.xml");
 		
 		try {
-			ctx.getBean(MutualFundAnalyzer.class).parseAndInitialize();
-
 	        Server server = new Server(5678);
 	        ServletContextHandler context = new ServletContextHandler(ServletContextHandler.SESSIONS);
 	        context.setContextPath("/");
