@@ -32,8 +32,6 @@ public class MutualFundSnapshotSummaryParser {
 			String categoryString = mf.select(MappingConstants.Selector.MUTUAL_FUND_CATEGORY_COLUMN).attr(MappingConstants.AttributeName.MUTUAL_FUND_CATEGORY).trim();
 			float netAssetsInCrores = Float.parseFloat(mf.select(MappingConstants.Selector.MUTUAL_FUND_NET_ASSETS_COLUMN).html().replace(",","").trim());
 			mutualFundAndStockManager.storeMutualFund(idString, name, ratingString, categoryString, netAssetsInCrores);
-			
-			System.out.println("Storing MF " + name);
 		}
 	}
 }

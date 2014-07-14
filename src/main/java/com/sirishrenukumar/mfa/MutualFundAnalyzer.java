@@ -44,10 +44,8 @@ public class MutualFundAnalyzer extends HttpServlet{
 	private MutualFundAndStockManager mutualFundAndStockManager;
 
 	private void parseAndInitialize() throws IOException {
-			
 			mutualFundSnapshotSummaryParser.parseMutualFundDetails();
 			mutualFundPortfolioParser.parseMutualFundAndStockDetails();
-			
 	}
 
 	public static void main(String[] args) throws Exception {

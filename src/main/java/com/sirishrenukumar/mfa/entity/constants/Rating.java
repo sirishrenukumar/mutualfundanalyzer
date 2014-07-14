@@ -1,7 +1,10 @@
 package com.sirishrenukumar.mfa.entity.constants;
 
+import java.util.Set;
+
 import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
+import com.google.common.collect.ImmutableSet;
 
 public enum Rating {
 	
@@ -32,4 +35,6 @@ public enum Rating {
 		
 		return Rating.UNRATED;
 	}
+	
+	public static final Set<Rating> ALL_RATINGS = ImmutableSet.of(Rating.ONE, Rating.TWO, Rating.THREE, Rating.FOUR, Rating.FIVE);
 }

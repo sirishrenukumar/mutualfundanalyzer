@@ -1,6 +1,10 @@
 package com.sirishrenukumar.mfa.entity.managers;
 
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 
 import javax.annotation.ManagedBean;
 import javax.inject.Inject;
@@ -10,8 +14,12 @@ import javax.persistence.PersistenceContext;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.google.common.base.Function;
+import com.google.common.base.Joiner;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
+import com.google.common.collect.Iterables;
+import com.google.common.collect.Sets;
 import com.sirishrenukumar.mfa.entity.MutualFund;
 import com.sirishrenukumar.mfa.entity.MutualFundAndStockAssociation;
 import com.sirishrenukumar.mfa.entity.Stock;
@@ -22,13 +30,33 @@ import com.sirishrenukumar.mfa.entity.constants.Rating;
 @ManagedBean
 public class MutualFundAndStockManager {
 	
+	private static final Comparator<Stock> STOCK_NET_ASSETS_ASCENDING_ORDER_COMPARATOR = new Comparator<Stock>() {
+		@Override
+		public int compare(Stock o1, Stock o2) {
+			return Float.valueOf(o1.getNetAssetsInCrores()).compareTo(Float.valueOf(o2.getNetAssetsInCrores()));
+		}
+	};
+	
+	private static final Function<MutualFund, String> MUTUAL_FUND_ID_EXTRACTOR_FUNCTION = new Function<MutualFund,String>() {
+		@Override
+		public String apply(MutualFund input) {
+			return Long.valueOf(input.getMutualfund_id()).toString();
+		}
+	};
+	
+	private static final Function<String,String> SINGLE_QUOTE_STRING_FUNCTION = new Function<String, String>() {
+		@Override
+		public String apply(String input) {
+			return String.format("'%s'",input);
+		}
+	};
+		
 	@PersistenceContext
 	private EntityManager em;
 	
 	@Inject
 	private JdbcTemplate jdbcTemplate;
 	
-
 	@Transactional
 	public void storeMutualFund(String codeString, String name, String ratingString, String categoryString, float netAssetsInCrores) {
 		Preconditions.checkArgument(!Strings.isNullOrEmpty(codeString));
@@ -46,7 +74,7 @@ public class MutualFundAndStockManager {
 	}
 	
 	@Transactional
-	public void associateStockWithMutualFund(String stockName, String stockSector, long mutualFundCode, StockMetrics stockMetrics) {
+	public void associateMutualFundAndStock(long mutualFundCode, String stockName, String stockSector, StockMetrics stockMetrics) {
 		Preconditions.checkArgument(!Strings.isNullOrEmpty(stockName));
 		Preconditions.checkArgument(!Strings.isNullOrEmpty(stockName));
 		
@@ -63,36 +91,82 @@ public class MutualFundAndStockManager {
 		associateStockWithMutualFund(mutualFundCode, stock, stockMetrics);
 	}
 	
-	@Transactional
-	public void updateStockNetAssets() {
-		
-		for(Stock stock : getStocks()) {
-			
-			String sql = String.format("SELECT SUM(mf.netAssetsInCrores * mfasa.assetPercentage/100) from MutualFund mf INNER JOIN MutualFundAndStockAssociation mfasa ON mf.mutualfund_id = mfasa.mutualfund_id WHERE mfasa.stock_id = %s", stock.getStock_id());
-			
-			stock.setNetAssetsInCrores(jdbcTemplate.queryForObject(sql, Float.class));
-			em.persist(stock);
+	@Transactional(readOnly = true)
+	public List<MutualFund> getMutualFunds() {
+		return getMutualFunds(null,null);
+	}
+
+	@Transactional(readOnly = true)
+	public List<MutualFund> getMutualFunds(Set<Category> requiredCategories, Set<Rating> requiredRatings) {
+
+		Set<String> fragments = Sets.newLinkedHashSet();
+		if(requiredCategories!= null && !requiredCategories.isEmpty()) {
+			fragments.add(String.format("category IN (%s)", Joiner.on(',').join(requiredCategories)));
 		}
+		if(requiredRatings!= null && !requiredRatings.isEmpty()) {
+			fragments.add(String.format("rating IN (%s)", Joiner.on(',').join(requiredRatings)));
+		}
+		
+		StringBuilder sql = new StringBuilder("SELECT mf FROM MutualFund mf");
+		if(!fragments.isEmpty()) {
+			sql.append(" WHERE ");
+			
+			Iterator<String> iterator = fragments.iterator();
+			while(iterator.hasNext()) {
+				sql.append(iterator.next());
+				if(iterator.hasNext()) {
+					sql.append(" AND ");
+				}
+			}
+		}
+		return em.createQuery(sql.toString(), MutualFund.class).getResultList();
 	}
 	
 	@Transactional(readOnly = true)
-	public List<MutualFund> getMutualFunds() {
-		return em.createQuery("SELECT mf FROM MutualFund mf", MutualFund.class).getResultList();
-	}
-		
-	@Transactional(readOnly = true)
 	public List<Stock> getStocks() {
-		return em.createQuery("SELECT s FROM Stock s", Stock.class).getResultList();
+		return getStocks(null);
 	}
 
+	@Transactional(readOnly = true)
+	public List<Stock> getStocks(Set<String> requiredSectors) {
+		
+		StringBuilder sql = new StringBuilder("SELECT s FROM Stock s");
+		if(requiredSectors!= null && !requiredSectors.isEmpty()) {
+			sql.append(String.format(" WHERE sector IN (%s)", Joiner.on(',').join(Iterables.transform(requiredSectors, SINGLE_QUOTE_STRING_FUNCTION))));
+		}
+
+		return em.createQuery(sql.toString(), Stock.class).getResultList();
+	}
+
+	
 	@Transactional(readOnly = true)
 	public List<Stock> getStocksOrderedByNetAssets() {
-		return em.createQuery("SELECT s FROM Stock s ORDER BY netAssetsInCrores DESC", Stock.class).getResultList();
+		return getStocksOrderedByNetAssets(null,null,null);
 	}
 
 	@Transactional(readOnly = true)
-	public List<Stock> getStocksOrderedByName() {
-		return em.createQuery("SELECT s FROM Stock s ORDER BY name", Stock.class).getResultList();
+	public List<Stock> getStocksOrderedByNetAssets(Set<Category> requiredCategories, Set<Rating> requiredRatings, Set<String> requiredSectors) {
+		
+		List<MutualFund> mutualFunds = getMutualFunds(requiredCategories, requiredRatings);
+		List<Stock> stocks = getStocks(requiredSectors);
+		
+		for(Stock stock : stocks) {
+			String sql = String.format("SELECT SUM(mf.netAssetsInCrores * mfasa.assetPercentage/100) from MutualFund mf "
+					+ "INNER JOIN MutualFundAndStockAssociation mfasa ON mf.mutualfund_id = mfasa.mutualfund_id "
+					+ "WHERE mfasa.stock_id = %s AND mfasa.mutualfund_id IN (%s)", 
+					stock.getStock_id(), 
+					Joiner.on(',').join(Iterables.transform(mutualFunds, MUTUAL_FUND_ID_EXTRACTOR_FUNCTION )));
+			stock.setNetAssetsInCrores(jdbcTemplate.queryForObject(sql, Float.class));
+		}
+		
+		Collections.sort(stocks, Collections.reverseOrder(STOCK_NET_ASSETS_ASCENDING_ORDER_COMPARATOR));
+		
+		return stocks;
+	}
+	
+	@Transactional(readOnly = true)
+	public List<String> getStockSectors() {
+		return jdbcTemplate.queryForList("SELECT DISTINCT(sector) FROM Stock ORDER BY sector", String.class); 
 	}
 	
 	@Transactional

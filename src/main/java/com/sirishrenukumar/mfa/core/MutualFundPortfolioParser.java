@@ -35,14 +35,11 @@ public class MutualFundPortfolioParser {
 				String sector = stockRow.select(MappingConstants.Selector.MUTUAL_FUND_DETAILS_PAGE_PORTFOLIO_TAB_TOP_HOLDINGS_TABLE_ROW_SECTOR).get(0).ownText().trim();
 				String assetPercentageString = stockRow.select(MappingConstants.Selector.MUTUAL_FUND_DETAILS_PAGE_PORTFOLIO_TAB_TOP_HOLDINGS_TABLE_ROW_ASSET_PERCENTAGE).get(0).ownText().trim();
 				
-				mutualFundAndStockManager.associateStockWithMutualFund(name, sector, mutualFund.getCode(), new StockMetrics(Float.parseFloat(assetPercentageString)));
+				mutualFundAndStockManager.associateMutualFundAndStock(mutualFund.getCode(), name, sector, new StockMetrics(Float.parseFloat(assetPercentageString)));
 			}
 		}
-		
-		mutualFundAndStockManager.updateStockNetAssets();
 	}
 
-	
 	private String getName(Element stockRow) {
 		Elements elements = stockRow.select(MappingConstants.Selector.MUTUAL_FUND_DETAILS_PAGE_PORTFOLIO_TAB_TOP_HOLDINGS_TABLE_ROW_NAME_WITH_HYPERLINK);
 		if(elements.isEmpty()) {

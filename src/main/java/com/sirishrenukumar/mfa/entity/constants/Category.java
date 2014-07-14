@@ -1,7 +1,11 @@
 package com.sirishrenukumar.mfa.entity.constants;
 
+import java.util.Arrays;
+import java.util.Set;
+
 import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
+import com.google.common.collect.Sets;
 
 public enum Category {
 	
@@ -33,4 +37,6 @@ public enum Category {
 		}
 		return Category.OTHERS;
 	}
+	
+	public static final Set<Category> ALL_CATEGORIES = Sets.newEnumSet(Arrays.asList(Category.values()), Category.class);
 }

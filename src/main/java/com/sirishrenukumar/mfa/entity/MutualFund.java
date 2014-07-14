@@ -44,6 +44,10 @@ public class MutualFund {
 		this.netAssetsInCrores = netAssetsInCrores;
 	}
 
+	public long getMutualfund_id() {
+		return mutualfund_id;
+	}
+
 	public long getCode() {
 		return code;
 	}
