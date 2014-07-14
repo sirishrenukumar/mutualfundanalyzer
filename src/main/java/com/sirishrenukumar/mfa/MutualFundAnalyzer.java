@@ -1,6 +1,7 @@
 package com.sirishrenukumar.mfa;
 
 import java.io.IOException;
+import java.util.Properties;
 
 import javax.annotation.ManagedBean;
 import javax.inject.Inject;
@@ -60,18 +61,22 @@ public class MutualFundAnalyzer extends HttpServlet{
 	}
 
 	public static void main(String[] args) throws Exception {
-        
+
 		ApplicationContext ctx = new ClassPathXmlApplicationContext("classpath:spring/application-config.xml");
-		
+
 		try {
-	        Server server = new Server(5678);
-	        ServletContextHandler context = new ServletContextHandler(ServletContextHandler.SESSIONS);
-	        context.setContextPath("/");
-	        server.setHandler(context);
-	        context.addServlet(new ServletHolder(ctx.getBean(MutualFundAnalyzer.class)),"/*");
-	        server.start();
-	        server.join();
-			
+
+			Properties props = new Properties();
+			props.load(MutualFundAnalyzer.class.getResourceAsStream("/application.properties"));
+			String port = (String)(System.getenv("PORT") == null? props.get("PORT"): System.getenv("PORT"));
+			Server server = new Server(Integer.valueOf(port));
+			ServletContextHandler context = new ServletContextHandler(ServletContextHandler.SESSIONS);
+			context.setContextPath("/");
+			server.setHandler(context);
+			context.addServlet(new ServletHolder(ctx.getBean(MutualFundAnalyzer.class)),"/*");
+			server.start();
+			server.join();
+
 		} finally {
 			if (ctx != null) {
 				((ClassPathXmlApplicationContext) ctx).close();
