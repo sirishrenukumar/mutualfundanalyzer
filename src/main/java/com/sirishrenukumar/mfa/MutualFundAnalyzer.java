@@ -17,6 +17,7 @@ import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 import com.sirishrenukumar.mfa.core.MutualFundPortfolioParser;
 import com.sirishrenukumar.mfa.core.MutualFundSnapshotSummaryParser;
+import com.sirishrenukumar.mfa.entity.MutualFund;
 import com.sirishrenukumar.mfa.entity.Stock;
 import com.sirishrenukumar.mfa.entity.managers.MutualFundAndStockManager;
 
@@ -33,6 +34,9 @@ public class MutualFundAnalyzer extends HttpServlet{
 			parseAndInitialize();
 		}
 		
+		for(MutualFund mutualFund : mutualFundAndStockManager.getMutualFunds()) {
+			resp.getOutputStream().println(mutualFund.toString());
+		}
 		for(Stock stock : mutualFundAndStockManager.getStocksOrderedByNetAssets()) {
 			resp.getOutputStream().println(stock.toString());
 		}
