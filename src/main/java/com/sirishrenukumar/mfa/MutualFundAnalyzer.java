@@ -56,7 +56,7 @@ public class MutualFundAnalyzer extends HttpServlet{
 
 	private void parseAndInitialize() throws IOException {
 			mutualFundSnapshotSummaryParser.parseMutualFundDetails();
-			//mutualFundPortfolioParser.parseMutualFundAndStockDetails();
+			mutualFundPortfolioParser.parseMutualFundAndStockDetails();
 			initialized = true;
 	}
 
